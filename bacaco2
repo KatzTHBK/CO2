@@ -6,7 +6,7 @@ using Polynomials #package for polynomial fits
 ##########################################################
 function loadfile() #read the data file
 
-file=CSV.File("Baca n2m0.csv")
+file=CSV.File("Baca n2m8.csv")
 
 return file
 end
@@ -14,7 +14,7 @@ end
 ##########################################################
 function getco2values(file) #extract the co2 values from read file
 
-n=504 #get first 504 entries before time jump
+n=508 #get first 508 entries before time jump
 co2=zeros(n) #allocate array for values
 
 for i=1:n #loop to extract co2 values
