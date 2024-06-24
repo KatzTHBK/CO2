@@ -1,0 +1,52 @@
+using CSV
+using Plots
+using LsqFit  # Package for non-linear fitting
+
+function loadfile()
+    file = CSV.File("20240610.csv")
+    return file
+end
+
+function getco2values(file)
+    n = 197
+    co2 = zeros(n)
+    for i in 1:n
+        co2[i] = file[i][4]
+    end
+    return co2
+end
+
+function model(t, p)
+    # p[1] = C, p[2] = Cout, p[3] = n, p[4] = S, p[5] = V, p[6] = Q
+    return @. p[6] * (p[1] - p[2] + p[3]*p[4]/p[6]) * exp(-p[6]*t/p[5]) + p[2] + p[3]*p[4]/p[6]
+end
+
+function fit_nonlinear_model()
+    file = loadfile()
+    co2 = getco2values(file)
+    t = 1:length(co2)
+    
+    # Initial parameter guesses
+    p0 = [400.0, 350.0, 1.0, 0.1, 1000.0, 0.1]
+    
+    # Fit the model
+    fit = curve_fit(model, t, co2, p0)
+    
+    # Extract fitted parameters
+    C, Cout, n, S, V, Q = fit.param
+    
+    return fit, t, co2
+end
+
+function plot_nonlinear_fit()
+    fit, t, co2 = fit_nonlinear_fit()
+    
+    # Plot data and fitted curve
+    fig = plot(t, co2, seriestype=:scatter, label="Data", xlabel="time (minutes)", ylabel="CO2 (ppm)")
+    plot!(t, model(t, fit.param), label="Non-linear Fit", linewidth=3)
+    
+    return fig
+end
+
+# Run the fitting and plotting
+plot_nonlinear_fit()
